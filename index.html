@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employer - Sistema de Registro</title>
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            margin: 0;
+            text-align: center;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        .employer-form {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input:not([type="radio"]):not([type="checkbox"]),
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #764ba2;
+            box-shadow: 0 0 0 3px rgba(118, 75, 162, 0.2);
+        }
+
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            font-size: 11px;
+            color: #888;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .radio-option:hover {
+            border-color: #764ba2;
+            background: #f3e8ff;
+        }
+
+        .radio-option input {
+            display: none;
+        }
+
+        .radio-option input:checked + .radio-custom {
+            background: #764ba2;
+            border-color: #764ba2;
+        }
+
+        .radio-option input:checked + .radio-custom::after {
+            content: '';
+            display: block;
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            margin: 2px;
+        }
+
+        .radio-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 50%;
+            margin-right: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .checkbox-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .checkbox-option {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            transition: all 0.3s;
+        }
+
+        .checkbox-option:hover {
+            border-color: #764ba2;
+            background: #f3e8ff;
+        }
+
+        .checkbox-option input {
+            display: none;
+        }
+
+        .checkbox-option input:checked + .checkbox-custom {
+            background: #764ba2;
+            border-color: #764ba2;
+        }
+
+        .checkbox-option input:checked + .checkbox-custom::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+        }
+
+        .checkbox-custom {
+            width: 18px;
+            height: 18px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            margin-right: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .close:hover {
+            transform: scale(1.2);
+        }
+
+        .modal-body {
+            padding: 25px;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-cerrar, .btn-imprimir {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            transition: all 0.2s;
+        }
+
+        .btn-cerrar {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-cerrar:hover {
+            background: #5a6268;
+        }
+
+        .btn-imprimir {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-imprimir:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .boucher {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .boucher-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #764ba2;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .boucher-num {
+            font-size: 12px;
+            background: #f0f0f0;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .boucher-fecha {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .boucher-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .boucher-section h3 {
+            color: #764ba2;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .boucher-linea {
+            padding: 6px 0;
+            border-bottom: 1px dashed #ddd;
+            font-size: 14px;
+        }
+
+        .boucher-linea:last-child {
+            border-bottom: none;
+        }
+
+        .boucher-footer {
+            margin-top: 20px;
+            text-align: center;
+            border-top: 2px solid #764ba2;
+            padding-top: 15px;
+        }
+
+        .qr-placeholder {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .firma {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-card">
+            <h1>👔 Employer</h1>
+
+            <form id="registroForm" class="employer-form">
+                <div class="form-group">
+                    <label for="email">Correo Electrónico</label>
+                    <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                    <small>📧 Recibirás el boucher en este correo</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ingrese su nombre" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="apellidos">Apellidos</label>
+                    <input type="text" id="apellidos" name="apellidos" placeholder="Ingrese sus apellidos" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Horario</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="horario" value="Día" required>
+                            <span class="radio-custom"></span>
+                            ☀️ Día
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="horario" value="Tarde">
+                            <span class="radio-custom"></span>
+                            🌅 Tarde
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="horario" value="Noche">
+                            <span class="radio-custom"></span>
+                            🌙 Noche
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Selecciona curso</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="curso" value="Java">
+                            <span class="checkbox-custom"></span>
+                            ☕ Java
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="curso" value="Python">
+                            <span class="checkbox-custom"></span>
+                            🐍 Python
+                        </label>
+                        <label class="checkbox-option">
+                            <input type="checkbox" name="curso" value="HTML5">
+                            <span class="checkbox-custom"></span>
+                            🌐 HTML5
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="grados">Grados de DST</label>
+                    <select id="grados" name="grados" required>
+                        <option value="" disabled selected>Seleccione un grado</option>
+                        <option value="Grado 1 - Principiante">Grado 1 - Principiante</option>
+                        <option value="Grado 2 - Intermedio">Grado 2 - Intermedio</option>
+                        <option value="Grado 3 - Avanzado">Grado 3 - Avanzado</option>
+                        <option value="Grado 4 - Experto">Grado 4 - Experto</option>
+                        <option value="Grado 5 - Master">Grado 5 - Master</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="subseccion">10 Subseccion</label>
+                    <select id="subseccion" name="subseccion" required>
+                        <option value="" disabled selected>Seleccione una subsección</option>
+                        <option value="Subsección 1 - Fundamentos">Subsección 1 - Fundamentos</option>
+                        <option value="Subsección 2 - Práctica">Subsección 2 - Práctica</option>
+                        <option value="Subsección 3 - Proyectos">Subsección 3 - Proyectos</option>
+                        <option value="Subsección 4 - Evaluación">Subsección 4 - Evaluación</option>
+                        <option value="Subsección 5 - Certificación">Subsección 5 - Certificación</option>
+                        <option value="Subsección 6 - Avanzado">Subsección 6 - Avanzado</option>
+                        <option value="Subsección 7 - Especialización">Subsección 7 - Especialización</option>
+                        <option value="Subsección 8 - Talleres">Subsección 8 - Talleres</option>
+                        <option value="Subsección 9 - Mentoría">Subsección 9 - Mentoría</option>
+                        <option value="Subsección 10 - Proyecto Final">Subsección 10 - Proyecto Final</option>
+                    </select>
+                </div>
+
+                <button type="button" class="submit-btn" onclick="generarBoucher()">
+                    <span>📧</span> ENVIAR REGISTRO
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DEL BOUCHER -->
+    <div id="modalBoucher" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>🧾 COMPROBANTE DE REGISTRO</h2>
+                <span class="close" onclick="cerrarModal()">&times;</span>
+            </div>
+            <div class="modal-body" id="boucherContent"></div>
+            <div class="modal-footer">
+                <button class="btn-cerrar" onclick="cerrarModal()">Cerrar</button>
+                <button class="btn-imprimir" onclick="imprimirBoucher()">🖨️ Imprimir</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE EMAILJS - YA CONFIGURADO ✅
+        // ============================================
+        const EMAILJS_SERVICE_ID = "service_yc894ba";
+        const EMAILJS_PUBLIC_KEY = "INw03YWfuZkGyh2Iu";
+        const EMAILJS_TEMPLATE_ID = "template_nkmr2ph";
+        
+        // Inicializar EmailJS
+        emailjs.init(EMAILJS_PUBLIC_KEY);
+        
+        async function generarBoucher() {
+            // Obtener valores
+            const email = document.getElementById('email').value.trim();
+            const nombre = document.getElementById('nombre').value.trim();
+            const apellidos = document.getElementById('apellidos').value.trim();
+            
+            let horario = '';
+            const radios = document.getElementsByName('horario');
+            for(let i = 0; i < radios.length; i++) {
+                if(radios[i].checked) { horario = radios[i].value; break; }
+            }
+            
+            let cursos = [];
+            const checkboxes = document.getElementsByName('curso');
+            for(let i = 0; i < checkboxes.length; i++) {
+                if(checkboxes[i].checked) { cursos.push(checkboxes[i].value); }
+            }
+            
+            const grados = document.getElementById('grados').value;
+            const subseccion = document.getElementById('subseccion').value;
+            
+            // Validar
+            if(!email || !nombre || !apellidos || !horario || !grados || !subseccion) {
+                alert('⚠️ Complete todos los campos');
+                return;
+            }
+            
+            // Deshabilitar botón
+            const btn = document.querySelector('.submit-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> Enviando...';
+            btn.disabled = true;
+            
+            try {
+                const numBoucher = 'BCH-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                const fecha = new Date().toLocaleString('es-ES');
+                const nombreCompleto = `${nombre} ${apellidos}`;
+                const cursosTexto = cursos.length > 0 ? cursos.join(', ') : 'Ninguno';
+                
+                // Versión texto plano para el correo
+                const textVersion = `
+🧾 NUEVO REGISTRO EMPLOYER 🧾
+
+📋 DATOS PERSONALES
+Nombre: ${nombreCompleto}
+Email: ${email}
+
+⏰ HORARIO: ${horario}
+📚 CURSOS: ${cursosTexto}
+🎓 GRADOS DST: ${grados}
+📖 SUBSECCIÓN: ${subseccion}
+
+📅 Fecha: ${fecha}
+🧾 Boucher: ${numBoucher}
+
+---
+Employer - Sistema de Registro
+                `;
+                
+                // Preparar datos para EmailJS
+                const templateParams = {
+                    to_email: email,
+                    to_name: nombreCompleto,
+                    from_name: "Employer - Sistema de Registro",
+                    message: textVersion,
+                    nombre_completo: nombreCompleto,
+                    email: email,
+                    fecha: fecha,
+                    horario: horario,
+                    cursos: cursosTexto,
+                    grados: grados,
+                    subseccion: subseccion,
+                    boucher_num: numBoucher
+                };
+                
+                // Enviar correo al cliente
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+                
+                // Enviar al administrador
+                const adminParams = { ...templateParams, to_email: "josuyov.29@gmail.com" };
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, adminParams);
+                
+                // Mostrar modal con el boucher
+                const boucherHTML = `
+                    <div class="boucher">
+                        <div class="boucher-header">
+                            <div class="logo">🏨 EMPLOYER</div>
+                            <div class="boucher-num">${numBoucher}</div>
+                        </div>
+                        <div class="boucher-fecha">📅 Fecha: ${fecha}</div>
+                        <div class="boucher-section">
+                            <h3>📋 DATOS PERSONALES</h3>
+                            <div class="boucher-linea"><strong>Nombre:</strong> ${nombreCompleto}</div>
+                            <div class="boucher-linea"><strong>Email:</strong> ${email}</div>
+                        </div>
+                        <div class="boucher-section">
+                            <h3>⏰ HORARIO</h3>
+                            <div class="boucher-linea"><strong>Turno:</strong> ${horario}</div>
+                        </div>
+                        <div class="boucher-section">
+                            <h3>📚 CURSOS</h3>
+                            <div class="boucher-linea"><strong>Cursos:</strong> ${cursosTexto}</div>
+                        </div>
+                        <div class="boucher-section">
+                            <h3>🎓 GRADOS DST</h3>
+                            <div class="boucher-linea"><strong>Grado:</strong> ${grados}</div>
+                        </div>
+                        <div class="boucher-section">
+                            <h3>📖 SUBSECCIÓN</h3>
+                            <div class="boucher-linea"><strong>Subsección:</strong> ${subseccion}</div>
+                        </div>
+                        <div class="boucher-footer">
+                            <div class="qr-placeholder">✅ REGISTRO EXITOSO</div>
+                            <div class="firma">Employer - Sistema de Registro</div>
+                        </div>
+                    </div>
+                `;
+                
+                document.getElementById('boucherContent').innerHTML = boucherHTML;
+                document.getElementById('modalBoucher').style.display = 'flex';
+                
+                alert('✅ ¡Registro exitoso! Se ha enviado el comprobante a tu correo.');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                alert('❌ Error al enviar: ' + error.message);
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+        
+        function cerrarModal() {
+            document.getElementById('modalBoucher').style.display = 'none';
+            document.getElementById('registroForm').reset();
+        }
+        
+        function imprimirBoucher() {
+            const contenido = document.getElementById('boucherContent').innerHTML;
+            const ventana = window.open('', '_blank');
+            ventana.document.write(`
+                <html>
+                <head>
+                    <title>Imprimir Boucher</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        .boucher { max-width: 500px; margin: 0 auto; border: 2px solid #1a1a2e; border-radius: 15px; padding: 20px; }
+                        .boucher-header { display: flex; justify-content: space-between; border-bottom: 2px solid #ccc; padding-bottom: 10px; margin-bottom: 15px; }
+                        .logo { font-size: 24px; font-weight: bold; color: #1a1a2e; }
+                        .boucher-section { margin: 15px 0; padding: 10px; background: #f5f5f5; border-radius: 10px; }
+                        .boucher-section h3 { color: #1a1a2e; margin-bottom: 10px; }
+                        .boucher-footer { margin-top: 20px; text-align: center; border-top: 2px solid #ccc; padding-top: 15px; }
+                    </style>
+                </head>
+                <body>${contenido}</body>
+                </html>
+            `);
+            ventana.document.close();
+            ventana.print();
+        }
+        
+        window.onclick = function(event) {
+            const modal = document.getElementById('modalBoucher');
+            if(event.target === modal) cerrarModal();
+        }
+    </script>
+</body>
+</html>
